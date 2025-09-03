@@ -201,7 +201,7 @@ function openPdfDownloadBox() {
             .filter(Boolean);
 
         if (allInvNumbersArr.length > 0) {
-            pdfFilename += ` (${allInvNumbersArr.join(', ')})`;
+            pdfFilename += ` (${allInvNumbersArr.join(' , ')})`;
         }
     }
 
@@ -747,9 +747,6 @@ async function checkThePdfNameToDownload() {
         button.style.cursor = 'not-allowed'; // Show disabled cursor
         button.innerText = 'Great!';
 
-
-        // Wait for Supabase storage to finish before continuing
-        await sendDataToSupabase();
 
 
 
