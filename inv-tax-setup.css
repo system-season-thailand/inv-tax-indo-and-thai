@@ -181,10 +181,12 @@ body {
 .invoice_company_guest_name_div_class {
     display: flex;
     justify-content: center;
+    direction: rtl;
 }
 
 .invoice_company_guest_name_div_class * {
     font-size: 1.5rem;
+    direction: rtl;
 }
 
 .invoice_tax_number_div_class {

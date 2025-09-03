@@ -430,6 +430,9 @@ function setupDuplicateOptions(targetClass, parentClass) {
 
     /* Update all inv total amount */
     updateTotalAmount();
+
+    // Setup automatic total calculation for payment amounts
+    setupAutomaticTotalCalculation();
 }
 
 
