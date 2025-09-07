@@ -85,7 +85,22 @@ body {
     font-weight: bold;
 }
 
+/* Button */
+#all_inv_office_insert_data_content button {
+    padding: 12px 28px;
+    background: linear-gradient(145deg, #4fc3f7, #f06292);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
 
+#all_inv_office_insert_data_content button:hover {
+    background: linear-gradient(145deg, #33beff, #ff4180);
+    transform: scale(1.02);
+}
 
 
 

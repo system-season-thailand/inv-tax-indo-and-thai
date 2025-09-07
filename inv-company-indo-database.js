@@ -41,10 +41,10 @@ const inv_comp_indo_fetchBatchFromSupabase = async () => {
 };
 
 const inv_tax_indo_loadAllData = async () => {
-    const container = document.getElementById("all_supabase_stored_inv_tax_data_names_for_importing_data_div");
+    const container = document.getElementById("all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div");
 
     if (!container) {
-        console.error("❌ Could not find #all_supabase_stored_inv_tax_data_names_for_importing_data_div");
+        console.error("❌ Could not find #all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div");
         return;
     }
 

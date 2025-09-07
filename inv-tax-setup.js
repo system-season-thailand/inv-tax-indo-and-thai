@@ -482,8 +482,8 @@ function showOverlay(clickedInputDropdownIdName) {
 
         // Clear all order indicators from both containers
         const containers = [
-            document.getElementById("all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div"),
-            document.getElementById("all_supabase_stored_inv_tax_data_names_for_importing_data_div")
+            document.getElementById("all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div"),
+            document.getElementById("all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div")
         ];
 
         containers.forEach(container => {
@@ -501,8 +501,8 @@ function showOverlay(clickedInputDropdownIdName) {
         // Set default active state - show Indonesia data by default
         document.getElementById('show_indonesia_data_btn').classList.add('active');
         document.getElementById('show_thailand_data_btn').classList.remove('active');
-        document.getElementById('all_supabase_stored_inv_tax_data_names_for_importing_data_div').style.display = 'flex';
-        document.getElementById('all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div').style.display = 'none';
+        document.getElementById('all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div').style.display = 'flex';
+        document.getElementById('all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div').style.display = 'none';
     }
 
     overlayLayer = document.createElement('div'); // Create a new overlay element
@@ -752,6 +752,10 @@ async function checkThePdfNameToDownload() {
 
 
 
+        // Wait for Supabase storage to finish before continuing
+        await sendDataToSupabase();
+
+
 
         // Re-enable the button after Supabase finishes
         button.style.pointerEvents = 'auto';
@@ -875,72 +879,6 @@ async function checkThePdfNameToDownload() {
 
 
 
-
-const printLatestFullMonthName = () => {
-    const div = document.getElementById("invoice_company_main_table_div_id");
-    if (!div) {
-        console.warn("Div not found");
-        return;
-    }
-
-    const text = div.innerText;
-
-    const monthReplacements = {
-        "Jan": "Jan", "Feb": "Feb", "Mar": "Mar", "Apr": "Apr",
-        "Mei": "May", "May": "May", "Jun": "Jun", "Jul": "Jul",
-        "Agu": "Aug", "Aug": "Aug", "Sep": "Sep", "Okt": "Oct",
-        "Oct": "Oct", "Nov": "Nov", "Des": "Dec", "Dec": "Dec"
-    };
-
-    const datePattern = /(\d{1,2}) (\w{3}) (\d{4})|(\d{1,2}) - (\d{1,2}) (\w{3}) (\d{4})|(\d{1,2}) (\w{3}) - (\d{1,2}) (\w{3}) (\d{4})/g;
-
-    let match;
-    let latestDate = null;
-
-    while ((match = datePattern.exec(text)) !== null) {
-        let day, month, year;
-
-        if (match[1] && match[2] && match[3]) {
-            // Format: "21 Jan 2026"
-            day = match[1];
-            month = monthReplacements[match[2]] || match[2];
-            year = match[3];
-        } else if (match[4] && match[5] && match[6] && match[7]) {
-            // Format: "3 - 8 Dec 2025"
-            day = match[5]; // last day
-            month = monthReplacements[match[6]] || match[6];
-            year = match[7];
-        } else if (match[8] && match[9] && match[10] && match[11] && match[12]) {
-            // Format: "8 Dec - 1 Jan 2026"
-            day = match[10]; // last day
-            month = monthReplacements[match[11]] || match[11];
-            year = match[12];
-        }
-
-        if (day && month && year) {
-            const parsedDate = new Date(`${month} ${day}, ${year}`);
-            if (!latestDate || parsedDate > latestDate) {
-                latestDate = parsedDate;
-            }
-        }
-    }
-
-    if (latestDate) {
-        const fullMonth = latestDate.toLocaleString("en-US", { month: "long" });
-        const year = latestDate.getFullYear();
-        const result = `${fullMonth} ${year}`;
-        console.log("Latest Month-Year:", result);
-        return result;
-    }
-
-    // if no date is found then return current user month and year
-    const now = new Date();
-    const currentMonth = now.toLocaleString("en-US", { month: "long" });
-    const currentYear = now.getFullYear();
-    const fallbackResult = `${currentMonth} ${currentYear}`;
-    console.log("Fallback to Current Month-Year:", fallbackResult);
-    return fallbackResult;
-};
 
 
 
@@ -1072,7 +1010,7 @@ const importMultipleSelectedInvCompIndoObjects = () => {
         const trimmedName = h3.getAttribute('data-original-name') || h3.innerText.trim();
 
         // Check if it's from Thailand data or Indonesia data
-        const isThailandData = h3.closest('#all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div');
+        const isThailandData = h3.closest('#all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div');
         const matchedObject = isThailandData
             ? inv_tax_thai_allFetchedData.find(obj => obj.name === trimmedName)
             : inv_tax_indo_allFetchedData.find(obj => obj.name === trimmedName);
@@ -1222,8 +1160,8 @@ const importMultipleSelectedInvCompIndoObjects = () => {
 
     // Reset all h3 element colors to default (white and black) in both containers
     const containers = [
-        document.getElementById("all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div"),
-        document.getElementById("all_supabase_stored_inv_tax_data_names_for_importing_data_div")
+        document.getElementById("all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div"),
+        document.getElementById("all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div")
     ];
 
     containers.forEach(container => {
@@ -1332,6 +1270,7 @@ function updateTotalAmount() {
 setTimeout(() => {
     inv_tax_indo_loadAllData();
     inv_tax_thai_loadAllData();
+    inv_all_saved_tax_fathi_loadAllData();
 
     // Initialize comma formatting for any existing payment elements
     setTimeout(() => {
@@ -1346,10 +1285,12 @@ function showIndonesiaData() {
     // Update button states
     document.getElementById('show_indonesia_data_btn').classList.add('active');
     document.getElementById('show_thailand_data_btn').classList.remove('active');
+    document.getElementById('show_all_saved_tax_data_btn').classList.remove('active');
 
     // Show Indonesia data, hide Thailand data
-    document.getElementById('all_supabase_stored_inv_tax_data_names_for_importing_data_div').style.display = 'flex';
-    document.getElementById('all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div').style.display = 'none';
+    document.getElementById('all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div').style.display = 'flex';
+    document.getElementById('all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div').style.display = 'none';
+    document.getElementById('all_supabase_stored_all_saved_inv_tax_fathi_data_names_for_importing_data_div').style.display = 'none';
 }
 
 // Function to show Thailand data
@@ -1357,12 +1298,29 @@ function showThailandData() {
     playSoundEffect('click');
 
     // Update button states
-    document.getElementById('show_thailand_data_btn').classList.add('active');
     document.getElementById('show_indonesia_data_btn').classList.remove('active');
+    document.getElementById('show_thailand_data_btn').classList.add('active');
+    document.getElementById('show_all_saved_tax_data_btn').classList.remove('active');
 
-    // Show Thailand data, hide Indonesia data
-    document.getElementById('all_supabase_stored_inv_tax_data_names_for_importing_data_div').style.display = 'none';
-    document.getElementById('all_supabase_stored_inv_comp_indo_data_names_for_importing_data_div').style.display = 'flex';
+    // Show Indonesia data, hide Thailand data
+    document.getElementById('all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div').style.display = 'none';
+    document.getElementById('all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div').style.display = 'flex';
+    document.getElementById('all_supabase_stored_all_saved_inv_tax_fathi_data_names_for_importing_data_div').style.display = 'none';
+}
+
+// Function to show Thailand data
+function showِAllSavedInvTaxFathiData() {
+    playSoundEffect('click');
+
+    // Update button states
+    document.getElementById('show_indonesia_data_btn').classList.remove('active');
+    document.getElementById('show_thailand_data_btn').classList.remove('active');
+    document.getElementById('show_all_saved_tax_data_btn').classList.add('active');
+
+    // Show Indonesia data, hide Thailand data
+    document.getElementById('all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div').style.display = 'none';
+    document.getElementById('all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div').style.display = 'none';
+    document.getElementById('all_supabase_stored_all_saved_inv_tax_fathi_data_names_for_importing_data_div').style.display = 'flex';
 }
 
 // Drag and Drop functionality for invoice rows
@@ -1498,37 +1456,42 @@ function initializeCommaFormatting() {
     });
 }
 
-// Make the invoice company logo image clickable to change its source
-function setupLogoImagePicker() {
-    const logoImg = document.getElementById('inv_comp_logo');
-    if (!logoImg) return;
 
-    // Style cursor to indicate clickability
-    logoImg.style.cursor = 'pointer';
-    logoImg.title = 'Click to change logo';
 
-    // Create a hidden file input
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = 'image/*';
-    fileInput.style.display = 'none';
-    document.body.appendChild(fileInput);
 
-    // When the image is clicked, trigger the file input
-    logoImg.addEventListener('click', function () {
-        fileInput.value = '';
-        fileInput.click();
-    });
 
-    // When a file is selected, update the image src
-    fileInput.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                logoImg.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-};
+
+/* Function to set the website data if it's for indonesia of thailand */
+function setWebsiteInvData(region) {
+    const logo = document.getElementById("inv_comp_logo");
+    const indoDiv = document.getElementById("payment_details_for_inv_tax_indo");
+    const thaiDiv = document.getElementById("payment_details_for_inv_tax_thai");
+
+    const indoAddresses = document.querySelectorAll(".all_inv_tax_fathi_indo_address_p_class");
+    const thaiAddresses = document.querySelectorAll(".all_inv_tax_fathi_thailand_address_p_class");
+
+    if (region === "indo") {
+        // Set logo
+        logo.src = "fanadiq-logo.jpg";
+
+        // Show Indo div, hide Thai div
+        indoDiv.style.removeProperty("display");
+        thaiDiv.style.display = "none";
+
+        // Show Indo addresses, hide Thai addresses
+        indoAddresses.forEach(p => p.style.removeProperty("display"));
+        thaiAddresses.forEach(p => p.style.display = "none");
+
+    } else if (region === "thai") {
+        // Set logo
+        logo.src = "season-logo.jpg";
+
+        // Show Thai div, hide Indo div
+        thaiDiv.style.removeProperty("display");
+        indoDiv.style.display = "none";
+
+        // Show Thai addresses, hide Indo addresses
+        thaiAddresses.forEach(p => p.style.removeProperty("display"));
+        indoAddresses.forEach(p => p.style.display = "none");
+    }
+}
