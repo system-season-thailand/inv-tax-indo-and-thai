@@ -1,7 +1,35 @@
-/* Code to store the data in the SupaBase */
-const supabaseUrl = 'https://bdisyvjhbipknpxvyctb.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkaXN5dmpoYmlwa25weHZ5Y3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MTIyMzksImV4cCI6MjA2MjI4ODIzOX0.x3aLzQPaaMIUo4MDyPSeCPnG33LVEhtFhGvhY3SkdrQ';
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+/* Code to store the data in the SupaBase
+   - This file now initializes two Supabase clients (primary & secondary)
+   - Use window.setActiveSupabase('primary'|'secondary') to switch at runtime
+   - window.activeSupabase will be used by other modules for fetch/insert operations
+*/
+const supabaseUrl = 'https://zrunsrimyijarswjfycw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpydW5zcmlteWlqYXJzd2pmeWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MjgzOTEsImV4cCI6MjA2MjMwNDM5MX0.UdW4LiIY-t1jZlrat1VUGnW0yRE7YEzW5SHbpkE29H8';
+// Primary client (existing)
+const supabase1 = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+// Secondary client (new project requested)
+const supabaseUrl2 = 'https://faugnoyhzkodtxfaczsb.supabase.co';
+const supabaseKey2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdWdub3loemtvZHR4ZmFjenNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzOTQzMTEsImV4cCI6MjA3Njk3MDMxMX0.93c_Sgi2R581LX3IodILyp2yiaErlTDH405lBDoqdIs';
+const supabase2 = window.supabase.createClient(supabaseUrl2, supabaseKey2);
+
+// Expose both on window for debugging/advanced use, and set an active client
+window.supabase1 = supabase1;
+window.supabase2 = supabase2;
+
+let activeSupabase = supabase1; // default to primary
+window.activeSupabase = activeSupabase;
+
+// Helper to switch active client at runtime. Use 'primary' or 'secondary'.
+window.setActiveSupabase = function (which) {
+    if (which === 'secondary' || which === 2) {
+        activeSupabase = supabase2;
+    } else {
+        activeSupabase = supabase1;
+    }
+    window.activeSupabase = activeSupabase;
+    console.info('Active Supabase client set to', which === 'secondary' || which === 2 ? 'secondary' : 'primary');
+};
 
 
 
@@ -29,7 +57,8 @@ async function sendDataToSupabase() {
 
 
     try {
-        const { data: existingRows, error: fetchError } = await supabase
+        // Use the active client so saving/loading can target the selected project
+        const { data: existingRows, error: fetchError } = await window.activeSupabase
             .from('inv_tax_indo_thai_fathi')
             .select('name')
             .eq('name', fileName);
@@ -49,7 +78,7 @@ async function sendDataToSupabase() {
 
 
             /* console.log('🟡 Existing invoice found, updating HTML content only...'); */
-            const { data, error } = await supabase
+            const { data, error } = await window.activeSupabase
                 .from('inv_tax_indo_thai_fathi')
                 .update({
                     inv_tax_all_content_fathi: htmlContent,
@@ -74,7 +103,7 @@ async function sendDataToSupabase() {
 
 
             console.log('🟢 No existing data, inserting new...');
-            const { data, error } = await supabase
+            const { data, error } = await window.activeSupabase
                 .from('inv_tax_indo_thai_fathi')
                 .insert([{
                     name: fileName,

@@ -8,7 +8,7 @@ const inv_all_saved_tax_fathi_fetchBatchFromSupabase = async () => {
     inv_all_saved_tax_fathi_allFetchedData = [];               // Reset the global cache before refilling
 
     while (true) {
-        const { data, error } = await supabase
+        const { data, error } = await window.activeSupabase
             .from('inv_tax_indo_thai_fathi')
             .select('*')
             .range(start, start + batchSize - 1); // Fetch the current 1,000-row window

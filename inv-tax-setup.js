@@ -8,77 +8,6 @@ setTimeout(function () {
 
 
 
-/* async function deletePastMonthRows() {
-    try {
-        const currentDate = new Date();
-        const currentMonth = currentDate.toLocaleString('default', { month: 'long' }); // e.g., "April"
-
-        // Month order for comparison (January = 0, December = 11)
-        const monthOrder = {
-            "January": 0, "February": 1, "March": 2, "April": 3, "May": 4, "June": 5,
-            "July": 6, "August": 7, "September": 8, "October": 9, "November": 10, "December": 11
-        };
-
-        // Fetch all rows from Supabase
-        const { data: allRows, error: fetchError } = await supabase
-            .from('inv_tax_indo')
-            .select('*');
-
-        if (fetchError) throw fetchError;
-
-        // Filter rows where the month is 6 or more months in the past
-        const rowsToDelete = allRows.filter(row => {
-            if (!row.package_indo_last_month_date) return false;
-            
-            const rowMonth = row.package_indo_last_month_date.trim(); // e.g., "January"
-            const currentMonthIndex = monthOrder[currentMonth];
-            const rowMonthIndex = monthOrder[rowMonth];
-            
-            // Calculate the difference in months considering year boundaries
-            let monthDifference;
-            if (rowMonthIndex <= currentMonthIndex) {
-                monthDifference = currentMonthIndex - rowMonthIndex;
-            } else {
-                // If row month is in previous year (e.g., current is January, row is November)
-                monthDifference = (12 - rowMonthIndex) + currentMonthIndex;
-            }
-
-
-            
-            // Only delete if the row's month is 6 or more months before current month
-            return rowMonthIndex !== undefined && monthDifference >= 6;
-        });
-
-        // Delete each matching row
-        for (const row of rowsToDelete) {
-            const { error } = await supabase
-                .from('inv_tax_indo')
-                .delete()
-                .eq('package_indo_user_current_date', row.package_indo_user_current_date);
-
-            if (error) console.error('Delete failed:', error);
-            else console.log(`Deleted: ${row.package_indo_last_month_date}`);
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-// Check if today is the 6th, 7th, or 8th before running the function
-function shouldRunCleanup() {
-    const today = new Date();
-    const currentDay = today.getDate(); // Returns day of the month (1-31)
-    return [5, 6, 7, 8, 9, 10].includes(currentDay);
-}
-
-// Execute only if today is the 5th, 6th, 7th, 8th, 9th, or 10th
-if (shouldRunCleanup()) {
-    deletePastMonthRows();
-} */
-
-
-
 
 
 
@@ -1269,7 +1198,8 @@ function updateTotalAmount() {
 
 setTimeout(() => {
     inv_tax_indo_loadAllData();
-    inv_tax_thai_loadAllData();
+    // Automatically load Thai companies from the secondary project once per page load
+    inv_tax_thai_loadAllData('secondary');
     inv_all_saved_tax_fathi_loadAllData();
 
     // Initialize comma formatting for any existing payment elements
@@ -1306,6 +1236,15 @@ function showThailandData() {
     document.getElementById('all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div').style.display = 'none';
     document.getElementById('all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div').style.display = 'flex';
     document.getElementById('all_supabase_stored_all_saved_inv_tax_fathi_data_names_for_importing_data_div').style.display = 'none';
+
+    // Explicitly load Thai companies from the secondary Supabase project
+    try {
+        if (typeof inv_tax_thai_loadAllData === 'function') {
+            inv_tax_thai_loadAllData('secondary');
+        }
+    } catch (e) {
+        console.error('Error loading Thai data from secondary project:', e);
+    }
 }
 
 // Function to show Thailand data

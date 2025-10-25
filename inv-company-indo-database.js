@@ -8,7 +8,7 @@ const inv_comp_indo_fetchBatchFromSupabase = async () => {
     inv_tax_indo_allFetchedData = [];               // Reset the global cache before refilling
 
     while (true) {
-        const { data, error } = await supabase
+        const { data, error } = await window.activeSupabase
             .from('inv_tax_indo')
             .select('*')
             .range(start, start + batchSize - 1); // Fetch the current 1,000-row window
