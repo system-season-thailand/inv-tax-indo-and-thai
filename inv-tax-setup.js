@@ -830,6 +830,8 @@ async function checkThePdfNameToDownload() {
 
 // Global variable to track selection order for both containers
 let inv_tax_selectionOrder = [];
+// Tracks additional totals contributed by new-arrangement imports (where per-row amounts are display-only)
+let inv_tax_additional_new_arrangement_total = 0;
 
 // Unified function to handle selection for both Indonesia and Thailand data
 const handleH3Selection = (clickedH3) => {
@@ -934,12 +936,14 @@ const importMultipleSelectedInvCompIndoObjects = () => {
 
     // Prepare an array to hold all new rows' HTML
     let newRowsHTML = "";
+    let additionalTotalThisImport = 0;
 
     selectedH3s.forEach(h3 => {
         const trimmedName = h3.getAttribute('data-original-name') || h3.innerText.trim();
 
         // Check if it's from Thailand data or Indonesia data
         const isThailandData = h3.closest('#all_supabase_stored_inv_tax_thai_data_names_for_importing_data_div');
+        const isIndonesiaData = h3.closest('#all_supabase_stored_inv_tax_indo_data_names_for_importing_data_div');
         const matchedObject = isThailandData
             ? inv_tax_thai_allFetchedData.find(obj => obj.name === trimmedName)
             : inv_tax_indo_allFetchedData.find(obj => obj.name === trimmedName);
@@ -947,16 +951,23 @@ const importMultipleSelectedInvCompIndoObjects = () => {
         if (matchedObject) {
             playSoundEffect('success');
 
-            // Parse the imported HTML content
+            // Parse the imported HTML content (works for both legacy and new arrangements)
             const tempDiv = document.createElement("div");
             tempDiv.innerHTML = matchedObject.content;
 
-            // Extract Invoice Date
+            if (isIndonesiaData) {
+                console.group(`Imported INV Indo data: ${trimmedName}`);
+                console.log("Matched Supabase object:", matchedObject);
+                console.log("Raw imported elements:", Array.from(tempDiv.children));
+                console.groupEnd();
+            }
+
+            // Extract Invoice Date (legacy format uses this single date column)
             let invDate = tempDiv.querySelector("#today_inv_company_date_p_id")?.innerText.trim() || "Unknown";
             invDate = invDate.split("Date: ")[1] || "";
 
 
-            // Extract Invoice Number
+            // Extract Invoice Number (legacy format transforms it from the header)
             let invNumber = tempDiv.querySelector("#current_used_inv_tax_p_id")?.innerText.trim() || "Unknown";
             // Extract the part after the 3rd dash and keep only digits
             invNumber = invNumber.split("-")[3]?.replace(/\D/g, "") || "";
@@ -968,11 +979,11 @@ const importMultipleSelectedInvCompIndoObjects = () => {
             guestName = guestName.replace(/^\((.*)\)$/, "$1").trim();
 
 
-            // Extract Guest Name without surrounding parentheses
+            // Extract Company Name (legacy format stores it once)
             let companytName = tempDiv.querySelector("#current_used_company_name_p_id")?.innerText.trim() || "Unknown";
 
 
-            // Extract Guest Name without surrounding parentheses
+            // Extract total invoice price (legacy format stores in footer)
             let invPrice = tempDiv.querySelector("#inv_tax_total_price_div_id p")?.innerText.trim() || "000";
             // Extract digits (accept commas or dots as separators)
             let match = invPrice.match(/[\d.,]+/);
@@ -988,7 +999,7 @@ const importMultipleSelectedInvCompIndoObjects = () => {
 
 
 
-            // Extract all hotel date ranges
+            // Extract all hotel date ranges to compute the stay period (legacy format)
             const dateElements = tempDiv.querySelectorAll(".hotel_check_in_out_date_class");
             const dateRanges = Array.from(dateElements).map(p => p.innerText.trim());
 
@@ -1028,6 +1039,101 @@ const importMultipleSelectedInvCompIndoObjects = () => {
             }
 
 
+
+
+
+            // --- Determine which arrangement is present in the stored content ---
+            const importedRows = Array.from(
+                tempDiv.querySelectorAll('#invoice_company_main_table_div_id .invoice_company_row_div_class')
+            ).filter(row => !row.classList.contains('last_invoice_company_row_div_class'));
+
+            const isNewArrangement = importedRows.length > 1 && importedRows.every(row => {
+                const firstP = row.querySelector('div:first-child p');
+                if (!firstP) return false;
+                const hasDateClass = firstP.classList.contains('inv_tax_date_p_class');
+                const hasNumberClass = firstP.classList.contains('inv_tax_number_p_class');
+                return !hasDateClass && hasNumberClass;
+            });
+
+            if (isNewArrangement) {
+                // === New arrangement handling ===
+                // Stored content already has per-row data; normalize each row into our standard template.
+                const formatCurrency = (value) => {
+                    if (!value) return "0";
+                    const matchValue = value.toString().match(/[\d.,]+/);
+                    if (matchValue) {
+                        const number = matchValue[0].replace(/\D/g, "");
+                        return number ? Number(number).toLocaleString("en-US") : "0";
+                    }
+                    return value;
+                };
+
+                const parseNumberFromText = (value) => {
+                    if (!value) return 0;
+                    const cleaned = value.toString().replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+                    const number = parseFloat(cleaned);
+                    return isNaN(number) ? 0 : number;
+                };
+
+                const importedTotalRaw = tempDiv.querySelector('#aotumaticTotalPriceSpan')?.innerText || "";
+                additionalTotalThisImport += parseNumberFromText(importedTotalRaw);
+
+                const companyNameSpans = Array.from(
+                    tempDiv.querySelectorAll('.invoice_company_guest_name_div_class span')
+                ).filter(span => span.innerText && span.innerText.trim() !== "");
+                const companyNameMap = importedRows.map((row, idx) => {
+                    const dataAttr = row.getAttribute('data-company-name');
+                    if (dataAttr && dataAttr.trim() !== "") {
+                        return dataAttr.trim();
+                    }
+                    return null;
+                });
+
+                importedRows.forEach((row, rowIndex) => {
+                    const rowInvNumber = row.querySelector('.inv_tax_number_p_class')?.innerText.trim() || invNumber || "";
+                    const rowPeriod = row.children[1]?.innerText.trim() || period || "Unknown";
+                    const rowGuest = row.querySelector('.duplicate_this_element_class')?.innerText.trim() || guestName || "Unknown";
+                    const rowAmountRaw = row.querySelector('.inv_rest_payment_or_deposit_number_p_class')?.innerText.trim() || "";
+                    const rowAmount = formatCurrency(rowAmountRaw);
+                    const rowCompany =
+                        companyNameMap[rowIndex] ||
+                        companyNameSpans[rowIndex]?.innerText.trim() ||
+                        companyNameSpans[0]?.innerText.trim() ||
+                        companytName ||
+                        "Unknown";
+                    const rowAmountClass = `inv_rest_payment_or_deposit_number_p_class${((rowCompany || "Unknown") === "Unknown") ? " red_text_color_class" : ""}`;
+
+                    newRowsHTML += `
+                        <div class="invoice_company_row_div_class">
+                            <div>
+                                <p class="inv_tax_date_p_class">${invDate || "Unknown"}</p>
+                            </div>
+                            <div>
+                                <p class="inv_tax_number_p_class">${rowInvNumber}</p>
+                            </div>
+                            <div>
+                                <p class="${(rowPeriod || "Unknown") === "Unknown" ? "red_text_color_class" : ""}">${rowPeriod || "Unknown"}</p>
+                            </div>
+                            <div>
+                                <p class="duplicate_this_element_class">${rowGuest}</p>
+                            </div>
+                            <div>
+                                <p class="${(rowCompany || "Unknown") === "Unknown" ? "red_text_color_class" : ""}">${rowCompany || "Unknown"}</p>
+                            </div>
+                            <div style="border-right: 0.5px solid black;">
+                                <p data-skip-total="true" class="${rowAmountClass}">${rowAmount}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                return;
+            }
+
+
+
+
+            // === Legacy arrangement handling ===
+            // No per-row data in the stored HTML, so create a single row using extracted fields.
             // Build the row HTML
             newRowsHTML += `
                 <div class="invoice_company_row_div_class">
@@ -1057,6 +1163,19 @@ const importMultipleSelectedInvCompIndoObjects = () => {
             console.log('No matched object found');
         }
     });
+
+
+
+    // Update global tracker for additional totals contributed by new-arrangement imports
+    if (additionalTotalThisImport > 0) {
+        if (hasExistingData) {
+            inv_tax_additional_new_arrangement_total += additionalTotalThisImport;
+        } else {
+            inv_tax_additional_new_arrangement_total = additionalTotalThisImport;
+        }
+    } else if (!hasExistingData) {
+        inv_tax_additional_new_arrangement_total = 0;
+    }
 
     // Handle insertion based on existing data
     if (hasExistingData && existingTotalRow) {
@@ -1139,17 +1258,25 @@ const importMultipleSelectedInvCompIndoObjects = () => {
 };
 
 // Helper function to create the total row HTML
+function parsePaymentValue(text) {
+    if (!text) return 0;
+    const cleaned = text.replace(/[^0-9.,-]/g, '').replace(/,/g, '');
+    const number = parseFloat(cleaned);
+    return isNaN(number) ? 0 : number;
+}
+
 function createTotalRow() {
     // Calculate the total from all payment amounts
     const paymentElements = document.querySelectorAll('.inv_rest_payment_or_deposit_number_p_class');
     let totalAmount = 0;
 
     paymentElements.forEach(element => {
+        if (element.dataset.skipTotal === "true") return;
         const text = element.innerText.trim();
-        // Remove commas and convert to number
-        const number = parseFloat(text.replace(/,/g, '')) || 0;
-        totalAmount += number;
+        totalAmount += parsePaymentValue(text);
     });
+
+    totalAmount += inv_tax_additional_new_arrangement_total;
 
     // Format the total with commas
     const formattedTotal = totalAmount.toLocaleString('en-US');
@@ -1175,11 +1302,12 @@ function updateTotalAmount() {
     let totalAmount = 0;
 
     paymentElements.forEach(element => {
+        if (element.dataset.skipTotal === "true") return;
         const text = element.innerText.trim();
-        // Remove commas and convert to number
-        const number = parseFloat(text.replace(/,/g, '')) || 0;
-        totalAmount += number;
+        totalAmount += parsePaymentValue(text);
     });
+
+    totalAmount += inv_tax_additional_new_arrangement_total;
 
     // Format the total with commas
     const formattedTotal = totalAmount.toLocaleString('en-US');
