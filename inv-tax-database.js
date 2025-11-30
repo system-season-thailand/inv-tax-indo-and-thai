@@ -4,13 +4,13 @@
    - window.activeSupabase will be used by other modules for fetch/insert operations
 */
 const supabaseUrl = 'https://zrunsrimyijarswjfycw.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweWZjdmpsamVqbXhnb3luYnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODk4OTYsImV4cCI6MjA2MjQ2NTg5Nn0.Ml7ICH8BoBZFbdRW-hOaN3OFX5j386QR_z0C4KmTt5k';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpydW5zcmlteWlqYXJzd2pmeWN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY3MjgzOTEsImV4cCI6MjA2MjMwNDM5MX0.UdW4LiIY-t1jZlrat1VUGnW0yRE7YEzW5SHbpkE29H8';
 // Primary client (existing)
 const supabase1 = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 // Secondary client (new project requested)
 const supabaseUrl2 = 'https://lpyfcvjljejmxgoynbxb.supabase.co';
-const supabaseKey2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdWdub3loemtvZHR4ZmFjenNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzOTQzMTEsImV4cCI6MjA3Njk3MDMxMX0.93c_Sgi2R581LX3IodILyp2yiaErlTDH405lBDoqdIs';
+const supabaseKey2 = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxweWZjdmpsamVqbXhnb3luYnhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY4ODk4OTYsImV4cCI6MjA2MjQ2NTg5Nn0.Ml7ICH8BoBZFbdRW-hOaN3OFX5j386QR_z0C4KmTt5k';
 const supabase2 = window.supabase.createClient(supabaseUrl2, supabaseKey2);
 
 // Expose both on window for debugging/advanced use, and set an active client
