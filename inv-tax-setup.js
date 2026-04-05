@@ -1530,7 +1530,7 @@ function initializeCommaFormatting() {
 
 /* Function to set the website data if it's for indonesia of thailand */
 function setWebsiteInvData(region) {
-    const logo = document.getElementById("inv_comp_logo");
+    /* const logo = document.getElementById("inv_comp_logo"); */
     const indoDiv = document.getElementById("payment_details_for_inv_tax_indo");
     const thaiDiv = document.getElementById("payment_details_for_inv_tax_thai");
 
@@ -1539,7 +1539,7 @@ function setWebsiteInvData(region) {
 
     if (region === "indo") {
         // Set logo
-        logo.src = "fanadiq-logo.jpg";
+        /* logo.src = "fanadiq-logo.jpg"; */
 
         // Show Indo div, hide Thai div
         indoDiv.style.removeProperty("display");
@@ -1551,7 +1551,7 @@ function setWebsiteInvData(region) {
 
     } else if (region === "thai") {
         // Set logo
-        logo.src = "season-logo.jpg";
+        /* logo.src = "season-logo.jpg"; */
 
         // Show Thai div, hide Indo div
         thaiDiv.style.removeProperty("display");

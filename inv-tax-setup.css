@@ -307,8 +307,6 @@ body {
 .invoice_company_bottom_payment_info_div_class * {
     font-size: 1.2rem;
     direction: ltr;
-    padding-left: 10rem;
-    padding-right: 6rem;
 }
 
 
@@ -705,4 +703,64 @@ body {
 
 #import_supabase_inv_comp_indo_data_names_dropdown p:hover {
     background: #e3f2fd;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.invoice_company_bottom_payment_info_div_class {
+    width: 100%;
+    font-weight: bolder;
+}
+
+.invoice_company_bottom_payment_info_div_class * {
+    padding-left: 5rem;
+}
+
+/* Titles */
+.section-title {
+    margin-bottom: 20px;
+    margin-top: 30px;
+}
+
+/* Table styling */
+.bank-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* Cells */
+.bank-table td {
+    padding: 3px 0;
+    vertical-align: top;
+    padding-left: 5rem;
+}
+
+/* Fixed widths for perfect alignment */
+.label {
+    width: 220px;
+}
+
+.colon {
+    width: 20px;
+    text-align: center;
+}
+
+.value {
+    width: auto;
+    padding-left: 1rem !important;
+}
+
+/* Divider line */
+.section-divider td {
+    padding-bottom: 30px;
 }

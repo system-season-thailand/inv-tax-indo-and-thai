@@ -40,7 +40,7 @@
 
             <div class="top_left_inv_company_detials_div_class" id="top_left_inv_company_orignal_div_id">
 
-                <img src="fanadiq-logo.jpg" id="inv_comp_logo" onclick="setupLogoImagePicker()">
+                <img src="season-logo.jpg" id="inv_comp_logo" onclick="setupLogoImagePicker()">
 
 
                 <p class="all_inv_tax_fathi_indo_address_p_class">Jl Raya Puncak KM 83,7 Tugu Selatan, Cisarua</p>
@@ -141,16 +141,67 @@
 
         <div id="payment_details_for_inv_tax_indo" class="invoice_company_bottom_payment_info_div_class">
 
-            <p style="font-weight: bolder; margin-bottom: 35px;">BANK ACCOUNT:</p>
+            <p class="section-title">BANK ACCOUNT (IDR):</p>
 
+            <table class="bank-table">
+                <tr>
+                    <td class="label">A/C Name</td>
+                    <td class="colon">:</td>
+                    <td class="value">PT. SEASON TRAVEL JAYA</td>
+                </tr>
+                <tr>
+                    <td class="label">Bank Name</td>
+                    <td class="colon">:</td>
+                    <td class="value">BANK MANDIRI</td>
+                </tr>
+                <tr>
+                    <td class="label">Account No</td>
+                    <td class="colon">:</td>
+                    <td class="value">0060012877175</td>
+                </tr>
+                <tr>
+                    <td class="label">Swift</td>
+                    <td class="colon">:</td>
+                    <td class="value">BMRIIDJA</td>
+                </tr>
+                <tr class="section-divider">
+                    <td class="label">Branch</td>
+                    <td class="colon">:</td>
+                    <td class="value">Jakarta Otto Iskandardinata</td>
+                </tr>
+            </table>
 
-            <pre style="font-weight: bolder;">A/C Name                     : PT. Fanadiq Indonesia Jaya</pre>
-            <pre style="font-weight: bolder;">Bank Name                   : BANK BRI</pre>
-            <pre style="font-weight: bolder;">Account No                   : 039001001477304</pre>
-            <pre style="font-weight: bolder;">Jakarta                         : Indonesia</pre>
-            <pre style="font-weight: bolder;">Swift                            : BRINIDJA</pre>
-            <pre style="font-weight: bolder;">Branch                         : BRI Cabang Pancoran</pre>
+            <hr>
 
+            <p class="section-title" contenteditable="true">BANK ACCOUNT (USD):</p>
+
+            <table class="bank-table">
+                <tr>
+                    <td class="label">A/C Name</td>
+                    <td class="colon">:</td>
+                    <td class="value">PT. SEASON TRAVEL JAYA</td>
+                </tr>
+                <tr>
+                    <td class="label">Bank Name</td>
+                    <td class="colon">:</td>
+                    <td class="value">BANK MANDIRI</td>
+                </tr>
+                <tr>
+                    <td class="label">Account No</td>
+                    <td class="colon">:</td>
+                    <td class="value">0060012877191</td>
+                </tr>
+                <tr>
+                    <td class="label">Swift</td>
+                    <td class="colon">:</td>
+                    <td class="value">BMRIIDJA</td>
+                </tr>
+                <tr class="section-divider">
+                    <td class="label">Branch</td>
+                    <td class="colon">:</td>
+                    <td class="value">Jakarta Otto Iskandardinata</td>
+                </tr>
+            </table>
 
         </div>
 
@@ -162,13 +213,12 @@
             <p style="font-weight: bolder; margin-bottom: 35px;">BANK ACCOUNT:</p>
 
 
-            <pre
-                style="font-weight: bolder;">A/C Name                                       : Season Travel Co., Ltd.</pre>
-            <pre style="font-weight: bolder;">Bank Name                                     : KASIKORN</pre>
+            <pre style="font-weight: bolder;">A/C Name                                 : Season Travel Co., Ltd.</pre>
+            <pre style="font-weight: bolder;">Bank Name                               : KASIKORN</pre>
             <pre style="font-weight: bolder;">Account Number Baht                     : 1981223000</pre>
-            <pre style="font-weight: bolder;">Swift                                               : KASITHВК</pre>
+            <pre style="font-weight: bolder;">Swift                                   : KASITHВК</pre>
             <pre
-                style="font-weight: bolder;">Branch                                            : Thanon Sukhumvit 55 sol thong LO20 branch no 888/8 Capital Residence bldg<br>                                                        1st Fl Sukhumvit 55 Klongtan Nua Wattada<br>                                                        Bangkok 10110 Thailand</pre>
+                style="font-weight: bolder;">Branch                                   : Thanon Sukhumvit 55 sol thong LO20 branch no 888/8 Capital Residence bldg<br>                                                        1st Fl Sukhumvit 55 Klongtan Nua Wattada<br>                                                        Bangkok 10110 Thailand</pre>
 
 
         </div>
@@ -183,7 +233,8 @@
 
     <!-- Choose pdf file name box -->
     <div id="name_pdf_file_div">
-        <input type="text" id="pdf_file_name_input_id" class="dynamic_direction_input_class" placeholder="اسم الملف" style="direction: rtl !important;">
+        <input type="text" id="pdf_file_name_input_id" class="dynamic_direction_input_class" placeholder="اسم الملف"
+            style="direction: rtl !important;">
         <button id="check_pdf_name_button" onclick="checkThePdfNameToDownload()">تحميل</button>
     </div>
 
